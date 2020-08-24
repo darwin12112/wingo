@@ -7,6 +7,7 @@ const checkAdmin=require("../middleware/adminChecker");
 const complaints_controller=require('../controllers/complaints');
 const bonus_controller=require('../controllers/bonus');
 const bank_controller=require('../controllers/bank');
+const reward_controller=require('../controllers/reward');
 /**
  * @route   POST /register
  * @desc    Register new user
@@ -70,4 +71,10 @@ router.get("/rechargeList", checkAuth,bank_controller.getRechargeList);
 router.post("/response-recharge",bank_controller.postResponseRecharge);
 router.post("/notify-recharge",bank_controller.postNotifyRecharge);
 router.get("/budget", checkAuth,bank_controller.getBudget);
+
+//reward
+router.post("/reward", checkAuth,checkAdmin,reward_controller.createReward);
+router.get("/rewards/:page", checkAuth,checkAdmin,reward_controller.listReward);
+router.delete("/reward/:id", checkAuth,checkAdmin,reward_controller.deleteReward);
+router.get("/reward/:id",reward_controller.putReward);
 module.exports = router;
