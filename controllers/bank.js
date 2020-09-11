@@ -302,6 +302,17 @@ exports.postResponseRecharge = (req, res, next) => {
     // });
 
 };
+exports.postNotifyRecharge = (req, res, next) => {    
+
+
+    return res.redirect('/recharge');
+   
+    // new Complaints(comp).save((err,user)=>{
+    //     console.log(err);
+    //     return res.status(200).json({message:"Send succesfully"});
+    // });
+
+};
 exports.getBudget = (req, res, next) => {
     
 

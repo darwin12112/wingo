@@ -68,5 +68,6 @@ router.post("/withdrawl-admin", checkAuth,checkAdmin,bank_controller.postAdminWi
 router.post("/recharge", checkAuth,bank_controller.postRecharge);
 router.get("/rechargeList", checkAuth,bank_controller.getRechargeList);
 router.post("/response-recharge",bank_controller.postResponseRecharge);
+router.post("/notify-recharge",bank_controller.postNotifyRecharge);
 router.get("/budget", checkAuth,bank_controller.getBudget);
 module.exports = router;
