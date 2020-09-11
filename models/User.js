@@ -59,8 +59,7 @@ const UserSchema = new Schema({
     type:Array
   },
   email:{
-    type:String,
-    required: true
+    type:String
   },
   // phoneDetails: {
   //   country: {
