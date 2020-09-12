@@ -199,23 +199,14 @@ var completing=()=>{
               });
     
   }
-  for(var i=0;i<bet_no[0];i++){
-    // console.log(joiner_budget);
-    User.findOneAndUpdate(
-      { _id: bet[0][i][0] },
-      {
-        $set: {
-          budget: bet[0][i][1],
-        },
-      },
-      //to return the new one
-      { new: true }
-    )
-      .then((user) => {
-      })
-      .catch((user) => {
-      });
-  }
+  bet[0].forEach((ele,index)=>{
+    User.findById(ele[0],(err,doc)=>{
+      // console.log(parseFloat(doc.budget)+" "+parseFloat(bet[2][index][1])+" "+ parseFloat(ele[1]));
+      doc.budget=parseFloat(doc.budget)-parseFloat(bet[2][index][1])+parseFloat(ele[1]);
+      doc.save();
+    });
+  });
+
   
   
 
