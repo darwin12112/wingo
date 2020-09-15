@@ -19,7 +19,7 @@ mongoose.set('useCreateIndex', true);
 mongoose.set('useUnifiedTopology', true);
 app.use(helmet());
 app.use(cors());
-const port = process.env.PORT || your_PORT;
+const port = process.env.PORT || 3000 ;
 const user = require("./routes/user");
 // Body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -63,6 +63,6 @@ app.get("*", function (req, res) {
 
 //////////////end error handling middleware////////////////////////
 
-app.listen(port, () => console.log(`Server is running on port ${your_PORT}!`));
+app.listen(port, () => console.log(`Server is running on port ${PORT}!`));
 
 module.exports = app;
