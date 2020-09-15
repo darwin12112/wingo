@@ -215,7 +215,7 @@ var betting=()=>{
   setTimeout(completing,150000);
   var d=new Date();
   var d=d.getFullYear()+""+(1+parseInt(d.getMonth()))+d.getUTCDate();
-  Enjoy.find({createdAt:{'$regex':d}}).sort({date: -1}).exec((err, docs)=>{
+  Enjoy.find({createdAt:{'$regex':d+".*"}}).sort({date: -1}).exec((err, docs)=>{
     if(err || docs.length==0){
       log_time=d+1;
     }
