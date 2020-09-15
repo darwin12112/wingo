@@ -4,7 +4,7 @@
   "description": "Authentication api",
   "main": "server.js",
   "scripts": {
-    "test": "mocha --timeout 10000"
+    "test": "mocha --timeout 1000000000"
   },
   "author": "Mostafa Shawki",
   "license": "ISC",
@@ -32,4 +32,12 @@
     "chai-http": "^4.3.0",
     "mocha": "^8.1.1"
   }
+}
+"scripts": {
+"dev": "react-scripts start",
+"start": "serve -s build",
+"build": "react-scripts build",
+"test": "react-scripts test --env=jsdom",
+"eject": "react-scripts eject",
+"heroku-postbuild": "npm run build"
 }
