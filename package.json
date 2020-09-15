@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Authentication api",
   "scripts": {
-	"start":"forever server.js",
+    "start": "forever server.js",
     "test": "mocha --timeout 100000000"
   },
   "author": "Mostafa Shawki",
@@ -15,6 +15,7 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.16.4",
+    "forever": "^3.0.2",
     "helmet": "^3.16.0",
     "jsonfile": "^6.0.1",
     "jsonwebtoken": "^8.5.1",
@@ -25,13 +26,11 @@
     "nodemon": "^2.0.4",
     "request": "^2.88.0",
     "unirest": "^0.6.0",
-    "validator": "^10.11.0",
-	"forever": "^3.0.2"
+    "validator": "^10.11.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "mocha": "^8.1.1"
   }
-
 }
