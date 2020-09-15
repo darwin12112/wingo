@@ -4,8 +4,8 @@
   "description": "Authentication api",
   "main": "server.js",
   "scripts": {
-    "test": "mocha --timeout 1000000000",
-  }
+    "test": "mocha --timeout 1000000000"
+  },
   "author": "Mostafa Shawki",
   "license": "ISC",
   "dependencies": {
