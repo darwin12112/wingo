@@ -214,22 +214,32 @@ var completing=()=>{
 var betting=()=>{
   setTimeout(completing,150000);
   var d=new Date();
-  if(no>480)
-    no=1;
-  log_time=d.getFullYear()+""+(1+parseInt(d.getMonth()))+d.getUTCDate()+no;
-
-  for(var i=0;i<4;i++){
-    status=0;
-    bet_no[i]=0;
-    d = new Date();
-    start_time=d.getTime();
-    bet[i]=[];
-    result[i]=Math.round( Math.random() * 10);
-    if(result[i]==10){
-      result[i]=0;
+  var d=d.getFullYear()+""+(1+parseInt(d.getMonth()))+d.getUTCDate();
+  Enjoy.find({createdAt:{'$regex':d}}).sort({date: -1}).exec((err, docs)=>{
+    if(err || docs.length==0){
+      log_time=d+1;
     }
-  }
+    else{
+      const no=parseInt(docs[0].substring(d.length));
+      log_time=d+""+(no+1);
+    }
+    
 
+    for(var i=0;i<4;i++){
+      status=0;
+      bet_no[i]=0;
+      d = new Date();
+      start_time=d.getTime();
+      bet[i]=[];
+      result[i]=Math.round( Math.random() * 10);
+      if(result[i]==10){
+        result[i]=0;
+      }
+    }
+  
+  });
+
+  
 
 };
 betting();
