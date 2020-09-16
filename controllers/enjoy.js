@@ -216,11 +216,13 @@ var betting=()=>{
   var d=new Date();
   var d=d.getFullYear()+""+(1+parseInt(d.getMonth()))+d.getUTCDate();
   Enjoy.find({createdAt:{'$regex':d+".*"}}).sort({date: -1}).exec((err, docs)=>{
+    console.log(err);
+    console.log(docs);
     if(err || docs.length==0){
       log_time=d+1;
     }
     else{
-      const no=parseInt(docs[0].substring(d.length));
+      const no=parseInt(docs[0].createdAt.substring(d.length));
       log_time=d+""+(no+1);
     }
     
