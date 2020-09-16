@@ -136,7 +136,9 @@ var completing=()=>{
             }
           case 12:
             {
-              if([0,5].find(ele=>ele==result[k])){
+              console.log(result[k]);
+              if(result[k]==0 || [0,5].find(ele=>ele==result[k])){
+                console.log('hi');
                 bet[k][i][3][color]=parseInt(bet[k][i][2][color]*0.98*4.5);
               }
               break;
@@ -215,17 +217,44 @@ var betting=()=>{
   setTimeout(completing,150000);
   var d=new Date();
   var d=d.getFullYear()+""+(1+parseInt(d.getMonth()))+d.getUTCDate();
-  Enjoy.find({createdAt:{'$regex':d+".*"}}).sort({date: -1}).exec((err, docs)=>{
-    console.log(err);
-    console.log(docs);
-    if(err || docs.length==0){
-      log_time=d+1;
-    }
-    else{
-      const no=parseInt(docs[0].createdAt.substring(d.length));
-      log_time=d+""+(no+1);
-    }
+  if(log_time===undefined){
+    Enjoy.find({createdAt:{'$regex':d+".*"}}).sort({createdAt: -1}).exec((err, docs)=>{
+      // console.log(err);
+      // console.log(docs);
+      if(err || docs.length==0){
+        log_time=d+"000"+1;
+        no=1;
+      }
+      else{
+        const tmp_no=parseInt(docs[0].createdAt.substring(d.length));
+        if(tmp_no<10)
+          log_time=d+"000"+(tmp_no+1);
+        else if(tmp_no<100)
+          log_time=d+"00"+(tmp_no+1);
+        else if(tmp_no<1000)
+          log_time=d+"0"+(tmp_no+1);
+        else if(tmp_no<10000)
+          log_time=d+""+(tmp_no+1);
+        no=tmp_no+1;
+      }
+      
+  
+      for(var i=0;i<4;i++){
+        status=0;
+        bet_no[i]=0;
+        d = new Date();
+        start_time=d.getTime();
+        bet[i]=[];
+        result[i]=Math.round( Math.random() * 10);
+        if(result[i]==10){
+          result[i]=0;
+        }
+      }
     
+    });
+  }else{
+
+    log_time=d+no;
 
     for(var i=0;i<4;i++){
       status=0;
@@ -238,8 +267,8 @@ var betting=()=>{
         result[i]=0;
       }
     }
+  }
   
-  });
 
   
 
