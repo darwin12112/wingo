@@ -227,13 +227,13 @@ var betting=()=>{
       }
       else{
         const tmp_no=parseInt(docs[0].createdAt.substring(d.length));
-        if(tmp_no<10)
+        if(tmp_no<9)
           log_time=d+"000"+(tmp_no+1);
-        else if(tmp_no<100)
+        else if(tmp_no<99)
           log_time=d+"00"+(tmp_no+1);
-        else if(tmp_no<1000)
+        else if(tmp_no<999)
           log_time=d+"0"+(tmp_no+1);
-        else if(tmp_no<10000)
+        else if(tmp_no<9999)
           log_time=d+""+(tmp_no+1);
         no=tmp_no+1;
       }
@@ -253,8 +253,15 @@ var betting=()=>{
     
     });
   }else{
-
-    log_time=d+no;
+    if(no<10)
+      log_time=d+"000"+(no);
+    else if(no<100)
+      log_time=d+"00"+(no);
+    else if(no<1000)
+      log_time=d+"0"+(no);
+    else if(no<10000)
+      log_time=d+""+(no);
+  
 
     for(var i=0;i<4;i++){
       status=0;
