@@ -79,7 +79,7 @@ const EnjoySchema = new Schema({
   // },
 
   createdAt: {
-    type: Number,
+    type: String,
     index:true
   }
 });
