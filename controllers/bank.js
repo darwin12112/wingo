@@ -73,24 +73,29 @@ exports.getAdminWithdrawl = (req, res, next) => {
         var withdrawls=await Withdrawl.find({'$or':[{status:'0'},{status:'1'}]});
         const res_data=[];
         for(var i=0;i<withdrawls.length;i++){
-            const aa=await User.findById(withdrawls[i].user);
-            res_data[i]={};
-            res_data[i]._id=withdrawls[i]._id;
-            res_data[i].status=withdrawls[i].status;
-            res_data[i].userId=aa._id;
-            res_data[i].userNickname=aa.nickname;
-            res_data[i].userPhone=aa.phone;
-            res_data[i].amount=withdrawls[i].money;
-            res_data[i].actual_name=aa.bank_card[withdrawls[i].bank].actual_name;
-            res_data[i].ifsc_code=aa.bank_card[withdrawls[i].bank].ifsc_code;
-            res_data[i].bank_name=aa.bank_card[withdrawls[i].bank].bank_name;
-            res_data[i].bank_account=aa.bank_card[withdrawls[i].bank].bank_account;
-            res_data[i].state_territory=aa.bank_card[withdrawls[i].bank].state_territory;
-            res_data[i].city=aa.bank_card[withdrawls[i].bank].city;
-            res_data[i].address=aa.bank_card[withdrawls[i].bank].address;
-            res_data[i].mobile_number=aa.bank_card[withdrawls[i].bank].mobile_number;
-            res_data[i].email=aa.bank_card[withdrawls[i].bank].email;
-            res_data[i].upi_account=aa.bank_card[withdrawls[i].bank].upi_account;
+            try{
+                const aa=await User.findById(withdrawls[i].user);
+                res_data[i]={};
+                res_data[i]._id=withdrawls[i]._id;
+                res_data[i].status=withdrawls[i].status;
+                res_data[i].userId=aa._id;
+                res_data[i].userNickname=aa.nickname;
+                res_data[i].userPhone=aa.phone;
+                res_data[i].amount=withdrawls[i].money;
+                res_data[i].actual_name=aa.bank_card[withdrawls[i].bank].actual_name;
+                res_data[i].ifsc_code=aa.bank_card[withdrawls[i].bank].ifsc_code;
+                res_data[i].bank_name=aa.bank_card[withdrawls[i].bank].bank_name;
+                res_data[i].bank_account=aa.bank_card[withdrawls[i].bank].bank_account;
+                res_data[i].state_territory=aa.bank_card[withdrawls[i].bank].state_territory;
+                res_data[i].city=aa.bank_card[withdrawls[i].bank].city;
+                res_data[i].address=aa.bank_card[withdrawls[i].bank].address;
+                res_data[i].mobile_number=aa.bank_card[withdrawls[i].bank].mobile_number;
+                res_data[i].email=aa.bank_card[withdrawls[i].bank].email;
+                res_data[i].upi_account=aa.bank_card[withdrawls[i].bank].upi_account;
+            }catch(ex){
+                continue;
+            }
+            
         }
       
         return res.status(200).json({data:res_data});
