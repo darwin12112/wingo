@@ -73,7 +73,7 @@ exports.postApply = (req, res, next) => {
                 })
                 
                 User.findById(req.userFromToken._id,(err,user)=>{
-                    user.budget=parseInt(user.budget)+total;
+                    user.budget=parseFloat(user.budget)+total;
                     user.save();
                     return res.status(200).json({message:'ok'});
                 })
@@ -95,7 +95,7 @@ exports.postApply = (req, res, next) => {
                     ele.save();
                 })
                 User.findById(req.userFromToken._id,(err,user)=>{
-                    user.budget=parseInt(user.budget)+total;
+                    user.budget=parseFloat(user.budget)+total;
                     user.save();
                     return res.status(200).json({message:'ok'});
                 })

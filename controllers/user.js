@@ -36,25 +36,25 @@ exports.user_register = (req, res, next) => {
             }
             userFields.refer2=tmp;
             const OTP = Math.floor(1000 + Math.random() * 9000);
-            request.headers({
-              authorization: "6zN08VAJNl781nfO0Qgb58Ou59mHosvfJWsHx5GwdhorabBPwcFY5dNGcXC1"
-            });
-////////////////////////////////////////////////////////////////
-            request.form({
-              sender_id: "u4ktrj", // Set your own "sender_id"
-              message: "34229", // template id
-              language: "english",
-              route: "qt", // Transactional Route SMS
-              variables: "{#AA#}",
-              variables_values: OTP,
-              numbers: req.body.phone // Number present in GET request
-            });
+//             request.headers({
+//               authorization: "6zN08VAJNl781nfO0Qgb58Ou59mHosvfJWsHx5GwdhorabBPwcFY5dNGcXC1"
+//             });
+// ////////////////////////////////////////////////////////////////
+//             request.form({
+//               sender_id: "u4ktrj", // Set your own "sender_id"
+//               message: "34229", // template id
+//               language: "english",
+//               route: "qt", // Transactional Route SMS
+//               variables: "{#AA#}",
+//               variables_values: OTP,
+//               numbers: req.body.phone // Number present in GET request
+//             });
 
-            request.end(function(res1) {
-              if (res1.error){
-                console.log(res1.raw_body);
-                return res.status(400).json({ error:JSON.parse(res1.raw_body).message });
-              }else{
+//             request.end(function(res1) {
+//               if (res1.error){
+//                 console.log(res1.raw_body);
+//                 return res.status(400).json({ error:JSON.parse(res1.raw_body).message });
+//               }else{
                 userFields.otp=OTP;
                 userFields.updatedAt=(new Date()).getTime();
                 new User(userFields)
@@ -76,12 +76,12 @@ exports.user_register = (req, res, next) => {
                   })
                 
                   return res.status(200).json({messgae:'ok' });
-                })
-                .catch((err)=>{
-                  return res.status(400).json({ 'error':err });
-                });
+                // })
+                // .catch((err)=>{
+                //   return res.status(400).json({ 'error':err });
+                // });
         ///////////////////////////////////////////////////////////////////////////////      
-              }
+              // }
               
             });
           })

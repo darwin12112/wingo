@@ -499,8 +499,8 @@ exports.postEnjoy = (req, res, next) => {
       _bet[2][parseInt(req.body.guess)]+=input_contract;
     }
     var tmp=[];
-    const bonus1=parseInt(req.body.contract_money) >=1000 ? parseInt(req.body.contract_money)*0.003 : parseInt(req.body.contract_money)*0.006;
-    const bonus2=parseInt(req.body.contract_money) >=1000 ? parseInt(req.body.contract_money)*0.0015 : parseInt(req.body.contract_money)*0.003;
+    const bonus1=parseInt(input_contract) >=1000 ? parseInt(input_contract)*0.003 : parseInt(input_contract)*0.006;
+    const bonus2=parseInt(input_contract) >=1000 ? parseInt(input_contract)*0.0015 : parseInt(input_contract)*0.003;
     User.findById(req.userFromToken._id,(err,user)=>{
       user.refer1.forEach(ele=>{
         const tmp1={};

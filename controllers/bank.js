@@ -44,14 +44,15 @@ exports.postWithdrawl = (req, res, next) => {
     
     User.findById(req.userFromToken._id,(err,user)=>{
         bcrypt.compare(req.body.password, user.password).then((isMatch) => {
+            const amount=Math.abs(parseFloat(req.body.amount));
             if (isMatch) {
-              if(parseFloat(user.budget)<parseFloat(req.body.amount))
+              if(parseFloat(user.budget)<amount)
                 return res.status(401).json({error:"You don't have enough money!"});
               const comp={};
               comp.user=user._id;
               comp.bank=req.body.bank;
-              comp.money=req.body.amount;
-              user.budget=parseFloat(user.budget)-parseFloat(req.body.amount);
+              comp.money=amount;
+              user.budget=parseFloat(user.budget)-amount;
               user.save();
               new Withdrawl(comp).save();
               return res.status(200).json({message:'success! It will be take a few hours to transfer.'});
@@ -204,13 +205,13 @@ exports.postRecharge = (req, res, next) => {
         const orderID="order"+(new Date()).getTime();
         const comp={};
         comp.user=req.userFromToken._id;
-        comp.money=req.body.amount;
+        comp.money=Math.abs(parseFloat(req.body.amount));
         console.log(comp);
         new Recharge(comp).save((err,data)=>{
             var postData = {
                 "appId" : process.env.CASHFREE_ID,
                 "orderId" : data._id,
-                "orderAmount" : req.body.amount,
+                "orderAmount" : Math.abs(parseFloat(req.body.amount)),
                 "orderNote" : 'test',
                 'customerName' : user.nickname,
                 "customerEmail" : req.body.email,
