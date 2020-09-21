@@ -236,9 +236,9 @@ exports.postRecharge = (req, res, next) => {
             user.email=req.body.email;
             user.save();
             if (mode == "PROD") {
-              url = "https://www.cashfree.com/checkout/post/submit";
+              url = "https://pages.razorpay.com/pl_FffAoHMMtdabzJ/view";
             } else {
-              url = "https://test.cashfree.com/billpay/checkout/post/submit";
+              url = "https://pages.razorpay.com/pl_FffAoHMMtdabzJ/view";
             }
             return res.status(200).json({postData,url});
         });
