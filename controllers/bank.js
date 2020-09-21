@@ -308,7 +308,6 @@ exports.postResponseRecharge = (req, res, next) => {
             if(expectedSignature === req.body.razorpay_signature){
                 Recharge.findOne({orderID:req.body.razorpay_order_id},(err,data)=>{
                     
-                    console.log(postData);
                     data.status=1;
                     data.save();
                     User.findById(data.user,(err,user)=>{
