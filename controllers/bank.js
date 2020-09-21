@@ -298,7 +298,7 @@ exports.postResponseRecharge = (req, res, next) => {
 	var bool_tmp=false;
     for(var i=0;i<order_ids.length;i++){
 		console.log(req.body.razorpay_order_id+" "+ order_ids[i].order);
-        if(order_ids[i].order==req.body.razorpay_order_id
+        if(order_ids[i].order==req.body.razorpay_order_id){
 			console.log("same");
             body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
             var crypto = require("crypto");
@@ -311,7 +311,7 @@ exports.postResponseRecharge = (req, res, next) => {
 				bool_tmp=true;
 				break;
                 
-            }else
+            }else{
 				console.log("different sign");
                 return res.redirect('/recharge');
             }
