@@ -276,9 +276,8 @@ exports.postRecharge = (req, res, next) => {
               instance.orders.create(options, function(err, order) {
                 // console.log(order);
                 // console.log(err);
-                data.orderID=order.id;
-                data.save();
-                order_ids.push({order:order.id,time:(new Date()).getTime()});
+               
+                order_ids.push({order:order.id,time:(new Date()).getTime(),id:data._id});
                 return res.status(200).json({order,key:process.env.RAZ_KEY,email:req.body.email,url: process.env.APP_URL+"api/response-recharge"});
               });
             
@@ -296,6 +295,7 @@ exports.postRecharge = (req, res, next) => {
 exports.postResponseRecharge = (req, res, next) => {    
 
 	var bool_tmp=false;
+	var _id;
     for(var i=0;i<order_ids.length;i++){
 		console.log(req.body.razorpay_order_id+" "+ order_ids[i].order);
         if(order_ids[i].order==req.body.razorpay_order_id){
@@ -308,6 +308,7 @@ exports.postResponseRecharge = (req, res, next) => {
             console.log(expectedSignature+ " "+ req.body.razorpay_signature);                
             if(expectedSignature == req.body.razorpay_signature){
 				console.log("same sign"); 
+				_id=order_ids[i].id;
 				bool_tmp=true;
 				break;
                 
@@ -324,12 +325,13 @@ exports.postResponseRecharge = (req, res, next) => {
         
     }
 	if(bool_tmp){
-		Recharge.findOne({orderID:req.body.razorpay_order_id},(err,data)=>{
-                    
+		Recharge.findById(_id,(err,data)=>{
+                    console.log(data.money+"inr");
                     data.status=1;
                     data.save();
                     User.findById(data.user,(err,user)=>{
                         user.budget=parseFloat(user.budget)+parseFloat(data.amount);
+						console.log(user.budget+"inr");
                         user.save((err)=>{                   
                             return res.redirect('/recharge');
                         });
