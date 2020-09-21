@@ -330,7 +330,7 @@ exports.postResponseRecharge = (req, res, next) => {
                     data.status=1;
                     data.save();
                     User.findById(data.user,(err,user)=>{
-                        user.budget=parseFloat(user.budget)+parseFloat(data.amount);
+                        user.budget=parseFloat(user.budget)+parseFloat(data.money);
 						console.log(user.budget+"inr");
                         user.save((err)=>{                   
                             return res.redirect('/recharge');
