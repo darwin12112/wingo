@@ -323,7 +323,7 @@ exports.postResponseRecharge = (req, res, next) => {
                 return res.redirect('/recharge');
             }
         }else{
-            if((parseInt(new Date()).getTime())-parseInt(order_ids[i].time)>1200000){
+            if(parseInt((new Date()).getTime())-parseInt(order_ids[i].time)>1200000){
                 order_ids.splice(i,1);
             }
         }
