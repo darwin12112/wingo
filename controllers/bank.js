@@ -240,7 +240,7 @@ exports.postRecharge = (req, res, next) => {
     //         if (mode == "PROD") {
     //           url = "https://www.cashfree.com/checkout/post/submit";
     //         } else {
-    //           url = "https://www.cashfree.com/billpay/checkout/post/submit";
+    //           url = "https://test.cashfree.com/billpay/checkout/post/submit";
     //         }
     //         return res.status(200).json({postData,url});
     //     });
@@ -296,6 +296,7 @@ exports.postRecharge = (req, res, next) => {
 exports.postResponseRecharge = (req, res, next) => {    
     console.log(req.body);
     console.log(order_ids);
+	var bool_tmp=false;
     for(var i=0;i<order_ids.length;i++){
         if(order_ids[i].order==req.body.razorpay_order_id){
             body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
@@ -306,7 +307,21 @@ exports.postResponseRecharge = (req, res, next) => {
                                         
             var response = {"status":"failure"}
             if(expectedSignature === req.body.razorpay_signature){
-                Recharge.findOne({orderID:req.body.razorpay_order_id},(err,data)=>{
+				bool_tmp=true;
+				break;
+                
+            }else{
+                return res.redirect('/recharge');
+            }
+        }else{
+            if(parseInt((new Date()).getTime())-parseInt(order_ids[i].time)>1200000){
+                order_ids.splice(i,1);
+            }
+        }
+        
+    }
+	if(bool_tmp){
+		Recharge.findOne({orderID:req.body.razorpay_order_id},(err,data)=>{
                     
                     data.status=1;
                     data.save();
@@ -318,17 +333,8 @@ exports.postResponseRecharge = (req, res, next) => {
                     });
                 
                 });
-            }else{
-                return res.redirect('/recharge');
-            }
-        }else{
-            if(parseInt((new Date()).getTime())-parseInt(order_ids[i].time)>1200000){
-                order_ids.splice(i,1);
-            }
-        }
-        
-    }
-    return res.redirect('/recharge');
+	}else
+		return res.redirect('/recharge');
     
     
 
