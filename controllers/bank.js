@@ -5,6 +5,8 @@ const bcrypt = require("bcryptjs");
 const Recharge=require("../models/Recharge");
 const request = require('request');
 var crypto    = require('crypto');
+const Razorpay = require('razorpay');
+var order_ids=[];
 exports.postBank = (req, res, next) => {
     
     const comp=req.body;
@@ -201,53 +203,53 @@ exports.postRecharge = (req, res, next) => {
 
 
     
-    User.findById(req.userFromToken._id,(err,user)=>{
-        const orderID="order"+(new Date()).getTime();
-        const comp={};
-        comp.user=req.userFromToken._id;
-        comp.money=Math.abs(parseFloat(req.body.amount));
-        console.log(comp);
-        new Recharge(comp).save((err,data)=>{
-            var postData = {
-                "appId" : process.env.CASHFREE_ID,
-                "orderId" : data._id,
-                "orderAmount" : Math.abs(parseFloat(req.body.amount)),
-                "orderNote" : 'test',
-                'customerName' : user.nickname,
-                "customerEmail" : req.body.email,
-                "customerPhone" : user.phone,
-                "returnUrl" : process.env.APP_URL+"api/response-recharge",
-                "notifyUrl" : process.env.APP_URL+"api/notify-recharge"
-            };
-            console.log(process.env.APP_URL+"response-recharge");
-            mode = "PROD";
-            secretKey = process.env.CASHFREE_KEY;
-            // console.log(secretKey);
-            sortedkeys = Object.keys(postData);
-            url="";
-            signatureData = "";
-            sortedkeys.sort();
-            for (var i = 0; i < sortedkeys.length; i++) {
-                k = sortedkeys[i];
-                signatureData += k + postData[k];
-            }
-            var signature = crypto.createHmac('sha256',secretKey).update(signatureData).digest('base64');
-            postData['signature'] = signature;
-            user.email=req.body.email;
-            user.save();
-            if (mode == "PROD") {
-              url = "https://pages.razorpay.com/pl_FffAoHMMtdabzJ/view";
-            } else {
-              url = "https://pages.razorpay.com/pl_FffAoHMMtdabzJ/view";
-            }
-            return res.status(200).json({postData,url});
-        });
+    // User.findById(req.userFromToken._id,(err,user)=>{
+    //     const orderID="order"+(new Date()).getTime();
+    //     const comp={};
+    //     comp.user=req.userFromToken._id;
+    //     comp.money=Math.abs(parseFloat(req.body.amount));
+    //     console.log(comp);
+    //     new Recharge(comp).save((err,data)=>{
+    //         var postData = {
+    //             "appId" : process.env.CASHFREE_ID,
+    //             "orderId" : data._id,
+    //             "orderAmount" : Math.abs(parseFloat(req.body.amount)),
+    //             "orderNote" : 'test',
+    //             'customerName' : user.nickname,
+    //             "customerEmail" : req.body.email,
+    //             "customerPhone" : user.phone,
+    //             "returnUrl" : process.env.APP_URL+"api/response-recharge",
+    //             "notifyUrl" : process.env.APP_URL+"api/notify-recharge"
+    //         };
+    //         console.log(process.env.APP_URL+"response-recharge");
+    //         mode = "PROD";
+    //         secretKey = process.env.CASHFREE_KEY;
+    //         // console.log(secretKey);
+    //         sortedkeys = Object.keys(postData);
+    //         url="";
+    //         signatureData = "";
+    //         sortedkeys.sort();
+    //         for (var i = 0; i < sortedkeys.length; i++) {
+    //             k = sortedkeys[i];
+    //             signatureData += k + postData[k];
+    //         }
+    //         var signature = crypto.createHmac('sha256',secretKey).update(signatureData).digest('base64');
+    //         postData['signature'] = signature;
+    //         user.email=req.body.email;
+    //         user.save();
+    //         if (mode == "PROD") {
+    //           url = "https://www.cashfree.com/checkout/post/submit";
+    //         } else {
+    //           url = "https://test.cashfree.com/billpay/checkout/post/submit";
+    //         }
+    //         return res.status(200).json({postData,url});
+    //     });
         
         
         
        
-    });
-    
+    // });
+    ////////////////////////////////////////////////
 	// res.render('request',{postData : JSON.stringify(postData),url : url});
    
 
@@ -256,49 +258,77 @@ exports.postRecharge = (req, res, next) => {
     //     console.log(err);
     //     return res.status(200).json({message:"Send succesfully"});
     // });
+    User.findById(req.userFromToken._id,(err,user)=>{
+        const comp={};
+        comp.user=req.userFromToken._id;
+        comp.money=Math.abs(parseFloat(req.body.amount));
+        console.log(comp);
+        new Recharge(comp).save((err,data)=>{
+            var options = {
+                amount: comp.money,  // amount in the smallest currency unit
+                currency: "INR",
+                receipt: "order_"+data._id
+              };
+              var instance = new Razorpay({
+                key_id: process.env.RAZ_KEY,
+                key_secret: process.env.RAZ_SECRET
+              })
+              instance.orders.create(options, function(err, order) {
+                // console.log(order);
+                // console.log(err);
+                data.orderID=order.id;
+                data.save();
+                order_ids.push({order:order.id,time:(new Date()).getTime()});
+                return res.status(200).json({order,key:process.env.RAZ_KEY,email:req.body.email,url: process.env.APP_URL+"api/response-recharge"});
+              });
+            
 
+            
+            
+            
+        });
+        
+        
+        
+       
+    });
 };
 exports.postResponseRecharge = (req, res, next) => {    
-
-
-    var postData = {
-        "orderId" : req.body.orderId,
-        "orderAmount" : req.body.orderAmount,
-        "referenceId" : req.body.referenceId,
-        "txStatus" : req.body.txStatus,
-        "paymentMode" : req.body.paymentMode,
-        "txMsg" : req.body.txMsg,
-        "txTime" : req.body.txTime
-       };
-      secretKey = process.env.CASHFREE_KEY;
-      signatureData = "";
-      for (var key in postData) {
-          signatureData +=  postData[key];
-      }
-      var computedsignature = crypto.createHmac('sha256',secretKey).update(signatureData).digest('base64');
-      postData['signature'] = req.body.signature;
-      postData['computedsignature'] = computedsignature;
-      
-      if(req.body.referenceId!='N/A' && req.body.txStatus!="CANCELLED" && postData['signature']==postData['computedsignature']){
-           
-          Recharge.findById(req.body.orderId,(err,data)=>{
-              
-              console.log(postData);
-            data.status=1;
-            data.amount=parseFloat(req.body.orderAmount);
-            data.save();
-            User.findById(data.user,(err,user)=>{
-                user.budget=parseFloat(user.budget)+parseFloat(data.amount);
-                user.save((err)=>{                   
-                    return res.redirect('/recharge');
+    for(var i=0;i<order_ids.length;i++){
+        if(order_ids[i].order==req.body.razorpay_order_id){
+            body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
+            var crypto = require("crypto");
+            var expectedSignature = crypto.createHmac('sha256', process.env.RAZ_SECRET)
+                                            .update(body.toString())
+                                            .digest('hex');
+                                        
+            var response = {"status":"failure"}
+            if(expectedSignature === req.body.razorpay_signature){
+                Recharge.findOne({orderID:req.body.razorpay_order_id},(err,data)=>{
+                    
+                    console.log(postData);
+                    data.status=1;
+                    data.save();
+                    User.findById(data.user,(err,user)=>{
+                        user.budget=parseFloat(user.budget)+parseFloat(data.amount);
+                        user.save((err)=>{                   
+                            return res.redirect('/recharge');
+                        });
+                    });
+                
                 });
-            });
-            
-          });
-          
-      }else{
-        return res.redirect('/recharge');
-      }
+            }else{
+                return res.redirect('/recharge');
+            }
+        }else{
+            if((new Date()).getTime()-order_ids[i].time>1200000){
+                order_ids.splice(i,1);
+            }
+        }
+        
+    }
+    return res.redirect('/recharge');
+    
     
 
    
