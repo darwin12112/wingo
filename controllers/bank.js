@@ -294,6 +294,8 @@ exports.postRecharge = (req, res, next) => {
     });
 };
 exports.postResponseRecharge = (req, res, next) => {    
+    console.log(req.body);
+    console.log(order_ids);
     for(var i=0;i<order_ids.length;i++){
         if(order_ids[i].order==req.body.razorpay_order_id){
             body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
@@ -321,7 +323,7 @@ exports.postResponseRecharge = (req, res, next) => {
                 return res.redirect('/recharge');
             }
         }else{
-            if((new Date()).getTime()-order_ids[i].time>1200000){
+            if((parseInt(new Date()).getTime())-parseInt(order_ids[i].time)>1200000){
                 order_ids.splice(i,1);
             }
         }
