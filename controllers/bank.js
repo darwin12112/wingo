@@ -265,7 +265,7 @@ exports.postRecharge = (req, res, next) => {
         console.log(comp);
         new Recharge(comp).save((err,data)=>{
             var options = {
-                amount: comp.money,  // amount in the smallest currency unit
+                amount: comp.money*100,  // amount in the smallest currency unit
                 currency: "INR",
                 receipt: "order_"+data._id
               };
