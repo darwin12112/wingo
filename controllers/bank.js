@@ -240,7 +240,7 @@ exports.postRecharge = (req, res, next) => {
     //         if (mode == "PROD") {
     //           url = "https://www.cashfree.com/checkout/post/submit";
     //         } else {
-    //           url = "https://test.cashfree.com/billpay/checkout/post/submit";
+    //           url = "https://www.cashfree.com/billpay/checkout/post/submit";
     //         }
     //         return res.status(200).json({postData,url});
     //     });
