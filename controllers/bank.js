@@ -294,26 +294,29 @@ exports.postRecharge = (req, res, next) => {
     });
 };
 exports.postResponseRecharge = (req, res, next) => {    
-    console.log(req.body);
-    console.log(order_ids);
+
 	var bool_tmp=false;
     for(var i=0;i<order_ids.length;i++){
-        if(order_ids[i].order==req.body.razorpay_order_id){
+		console.log(req.body.razorpay_order_id+" "+ order_ids[i].order);
+        if(order_ids[i].order==req.body.razorpay_order_id
+			console.log("same");
             body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
             var crypto = require("crypto");
             var expectedSignature = crypto.createHmac('sha256', process.env.RAZ_SECRET)
                                             .update(body.toString())
                                             .digest('hex');
-                                        
-            var response = {"status":"failure"}
-            if(expectedSignature === req.body.razorpay_signature){
+            console.log(expectedSignature+ " "+ req.body.razorpay_signature);                
+            if(expectedSignature == req.body.razorpay_signature){
+				console.log("same sign"); 
 				bool_tmp=true;
 				break;
                 
-            }else{
+            }else
+				console.log("different sign");
                 return res.redirect('/recharge');
             }
         }else{
+			console.log("different");
             if(parseInt((new Date()).getTime())-parseInt(order_ids[i].time)>1200000){
                 order_ids.splice(i,1);
             }
