@@ -24,6 +24,7 @@
     "nedb": "^1.8.0",
     "nexmo": "^2.8.0",
     "nodemon": "^2.0.4",
+    "razorpay": "^2.0.6",
     "request": "^2.88.0",
     "unirest": "^0.6.0",
     "validator": "^10.11.0"
