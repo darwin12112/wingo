@@ -40,10 +40,20 @@ exports.deleteBank = (req, res, next) => {
 };
 
 
-exports.postWithdrawl = (req, res, next) => {
+exports.postWithdrawl = async (req, res, next) => {
+    
+    var time=parseInt((new Date()).getTime());
+    const old=await Withdrawl.find({user:req.userFromToken._id}).sort('-createdAt');
+    if(old.length!==0){
+        console.log(time);
+        console.log(parseInt((new Date(old[0].createdAt)).getTime()));
+
+        if(time-parseInt((new Date(old[0].createdAt)).getTime())<3600000){
+            return res.status(400).json({error:"Withdraw is only allowed 1 time per hour!"});
+        }
+    }
     
 
-    
     User.findById(req.userFromToken._id,(err,user)=>{
         bcrypt.compare(req.body.password, user.password).then((isMatch) => {
             const amount=Math.abs(parseFloat(req.body.amount));
@@ -73,7 +83,7 @@ exports.getAdminWithdrawl = (req, res, next) => {
     
 
     (async ()=>{
-        var withdrawls=await Withdrawl.find({'$or':[{status:'0'},{status:'1'}]});
+        var withdrawls=await Withdrawl.find({'$or':[{status:'0'},{status:'1'}]}).sort("-createdAt");
         const res_data=[];
         for(var i=0;i<withdrawls.length;i++){
             try{
@@ -118,42 +128,55 @@ exports.postAdminWithdrawl = (req, res, next) => {
     (async ()=>{
         var withdrawls=await Withdrawl.findById(req.body.id);
         var user=await User.findById(withdrawls.user);
+        // console.log("budget="+user.budget);
+        // console.log("withdraw="+withdrawls.money);
+        // console.log(req.body.status);
         // console.log(req.body.status);
         switch(req.body.status){
             case 2:{
                 //decline
-                // console.log('2');
+                //  console.log('decline');
                 user.budget=parseFloat(user.budget)+parseFloat(withdrawls.money);
                 withdrawls.status=2;
-                await withdrawls.save();
+                const saved_w=await withdrawls.save();
+                // console.log("withdraw status="+saved_w.status);
                 break;
             }
             case 1:{
                  //approve
-                //  console.log('1');
+                //  console.log('approve');
                  withdrawls.status=1;
-                 await withdrawls.save();
+                 const saved_w=await withdrawls.save();
+                // console.log("withdraw status="+saved_w.status);
                  break;
             }
             case 3:{
                 //complete
-                // console.log('3');
+                // console.log('complete');
                 withdrawls.status=3;
-                await withdrawls.save();
+                const saved_w=await withdrawls.save();
+                // console.log("withdraw status="+saved_w.status);
                 break;
             }
             case 4:{
                 //error
-                // console.log('4');
+                // console.log('error');
                 user.budget=parseFloat(user.budget)+parseFloat(withdrawls.money);
                 withdrawls.status=4;
-                withdrawls.save();
-                await user.save();
+                const saved_w=await withdrawls.save();
+                // console.log("withdraw status="+saved_w.status);
+                
                 break;
             }
         }
+        // console.log('user.budget= '+user.budget);
+        try{
+            const saved=await user.save();
+            // console.log('saved user.budget='+saved.budget);
+        }catch(ex){
+            console.log(ex);
+        }
         
-      
         return res.status(200).json({message:'ok'});
     })();
     
