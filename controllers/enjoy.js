@@ -575,17 +575,30 @@ exports.getEnjoyMyPage=(req,res,next)=>{
 
 
 exports.getEnjoyAdmin=(req,res,next)=>{
-  const level=req.params.level;
+  if(req.params.level==4){
+    var d = new Date();
+    var cur_time = d.getTime();
 
-  var d = new Date();
-  var cur_time = d.getTime();
+
+    res.status(200).json({log_time:log_time,
+      time:cur_time-start_time,
+      bet:bet,
+      auto:auto,
+      'number':result});
+  }else{
+    const level=req.params.level;
+
+    var d = new Date();
+    var cur_time = d.getTime();
 
 
-  res.status(200).json({log_time:log_time,
-    time:cur_time-start_time,
-    bet:bet[level],
-    auto:auto,
-    'number':result[level]});
+    res.status(200).json({log_time:log_time,
+      time:cur_time-start_time,
+      bet:bet[level],
+      auto:auto,
+      'number':result[level]});
+  }
+  
    
       
     
