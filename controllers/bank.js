@@ -222,7 +222,7 @@ exports.getRechargeList = (req, res, next) => {
     // });
 
 };
-exports.postRecharge = (req, res, next) => {    
+exports.postRecharge =(req, res, next) => {    
 
 
     
@@ -281,34 +281,42 @@ exports.postRecharge = (req, res, next) => {
     //     console.log(err);
     //     return res.status(200).json({message:"Send succesfully"});
     // });
+    console.log("amount="+req.body.amount);
+    if(req.body.amount==="" || req.body.email===""){
+        return res.status(400).json({error:"Please input correct amount"});
+    }
     User.findById(req.userFromToken._id,(err,user)=>{
         const comp={};
         comp.user=req.userFromToken._id;
         comp.money=Math.abs(parseFloat(req.body.amount));
         console.log(comp);
-        new Recharge(comp).save((err,data)=>{
-            var options = {
-                amount: comp.money*100,  // amount in the smallest currency unit
-                currency: "INR",
-                receipt: "order_"+data._id
-              };
-              var instance = new Razorpay({
-                key_id: process.env.RAZ_KEY,
-                key_secret: process.env.RAZ_SECRET
-              })
-              instance.orders.create(options, function(err, order) {
-                // console.log(order);
-                // console.log(err);
-               
-                order_ids.push({order:order.id,time:(new Date()).getTime(),id:data._id});
-                return res.status(200).json({order,key:process.env.RAZ_KEY,email:req.body.email,url: process.env.APP_URL+"api/response-recharge"});
-              });
-            
-
-            
-            
-            
+        user.email=req.body.email;
+        user.save((err,saved)=>{
+            new Recharge(comp).save((err,data)=>{  
+                var options = {
+                    amount: comp.money*100,  // amount in the smallest currency unit
+                    currency: "INR",
+                    receipt: "order_"+data._id
+                  };
+                  var instance = new Razorpay({
+                    key_id: process.env.RAZ_KEY,
+                    key_secret: process.env.RAZ_SECRET
+                  })
+                  instance.orders.create(options, function(err, order) {
+                    // console.log(order);
+                    // console.log(err);
+                   
+                    order_ids.push({order:order.id,time:(new Date()).getTime(),id:data._id});
+                    return res.status(200).json({order,key:process.env.RAZ_KEY,email:req.body.email,url: process.env.APP_URL+"api/response-recharge"});
+                  });
+                
+    
+                
+                
+                
+            });
         });
+        
         
         
         
