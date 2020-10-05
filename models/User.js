@@ -40,7 +40,7 @@ const UserSchema = new Schema({
   budget:
   {
     type: Number,
-    default:0,
+    default:30,
     required: true
   },
   refer2:{

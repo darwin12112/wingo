@@ -41,7 +41,9 @@ exports.deleteBank = (req, res, next) => {
 
 
 exports.postWithdrawl = async (req, res, next) => {
-    
+    const amount=Math.abs(parseFloat(req.body.amount));
+    if(amount<100)
+        return res.status(400).json({error:"Only more than 100 inr allowed"});
     var time=parseInt((new Date()).getTime());
     const old=await Withdrawl.find({user:req.userFromToken._id}).sort('-createdAt');
     if(old.length!==0){
@@ -56,7 +58,7 @@ exports.postWithdrawl = async (req, res, next) => {
 
     User.findById(req.userFromToken._id,(err,user)=>{
         bcrypt.compare(req.body.password, user.password).then((isMatch) => {
-            const amount=Math.abs(parseFloat(req.body.amount));
+            
             if (isMatch) {
               if(parseFloat(user.budget)<amount)
                 return res.status(401).json({error:"You don't have enough money!"});
