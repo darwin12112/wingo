@@ -8,6 +8,10 @@ const RechargeSchema = new Schema({
     required:true,
     index:true
   },
+  phone:{
+    type:Number,
+    index:true
+  },
   money:{
     type:Number,
     index:true

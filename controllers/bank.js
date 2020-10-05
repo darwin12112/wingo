@@ -189,6 +189,105 @@ exports.postAdminWithdrawl = (req, res, next) => {
 };
 
 
+
+exports.getAdminRecharge = (req, res, next) => {
+    
+
+    (async ()=>{
+        var recharges=await Recharge.find({}).sort("-createdAt");
+        const res_data=[];
+        for(var i=0;i<recharges.length;i++){
+            try{
+                const aa=await User.findById(recharges[i].user);
+                res_data[i]={};
+                res_data[i]._id=recharges[i]._id;
+                res_data[i].status=recharges[i].status;
+                res_data[i].orderID=recharges[i].orderID;
+                res_data[i].createdAt=recharges[i].createdAt;
+                res_data[i].userId=aa._id;
+                res_data[i].userNickname=aa.nickname;
+                res_data[i].userPhone=aa.phone;
+                res_data[i].money=recharges[i].money;
+                
+            }catch(ex){
+                continue;
+            }
+            
+        }
+      
+        return res.status(200).json({data:res_data});
+    })();
+    
+   
+    // new Complaints(comp).save((err,user)=>{
+    //     console.log(err);
+    //     return res.status(200).json({message:"Send succesfully"});
+    // });
+
+};
+
+exports.postAdminRecharge = (req, res, next) => {
+    
+    
+    (async ()=>{
+        var recharge=await Recharge.findById(req.body.id);
+        var user=await User.findById(recharge.user);
+        
+        // console.log("budget="+user.budget);
+        // console.log("withdraw="+recharge.money);
+        // console.log(req.body.status);
+        // console.log(req.body.status);
+        if(req.body.status==1 && recharge.status!=1)       
+            user.budget=parseFloat(user.budget)+parseFloat(recharge.money);              
+        else if(req.body.status==-1 && recharge.status==1)       
+            user.budget=parseFloat(user.budget)-parseFloat(recharge.money);   
+        recharge.status=req.body.status;
+       
+        // console.log('user.budget= '+user.budget);
+        try{
+            const saved_w=await recharge.save();
+            const saved=await user.save();
+            // console.log('saved user.budget='+saved.budget);
+        }catch(ex){
+            console.log(ex);
+        }
+        
+
+        var recharges=await Recharge.find({}).sort("-createdAt");
+        const res_data=[];
+        for(var i=0;i<recharges.length;i++){
+            try{
+                const aa=await User.findById(recharges[i].user);
+                res_data[i]={};
+                res_data[i]._id=recharges[i]._id;
+                res_data[i].status=recharges[i].status;
+                res_data[i].orderID=recharges[i].orderID;
+                res_data[i].createdAt=recharges[i].createdAt;
+                res_data[i].userId=aa._id;
+                res_data[i].userNickname=aa.nickname;
+                res_data[i].userPhone=aa.phone;
+                res_data[i].money=recharges[i].money;
+                
+            }catch(ex){
+                continue;
+            }
+            
+        }
+        
+        return res.status(200).json({res_data});
+        
+    })();
+    
+   
+    // new Complaints(comp).save((err,user)=>{
+    //     console.log(err);
+    //     return res.status(200).json({message:"Send succesfully"});
+    // });
+
+};
+
+
+
 exports.getWithdrawlList = (req, res, next) => {
     
 
@@ -222,10 +321,24 @@ exports.getRechargeList = (req, res, next) => {
     // });
 
 };
-exports.postRecharge =(req, res, next) => {    
-
-
+exports.postRecharge =async (req, res, next) => {    
+    const comp={};
+    comp.user=req.userFromToken._id;
+    const user=await User.findById(comp.user);
+    comp.phone=user.phone;
+    comp.money=req.body.money;
+    comp.orderID=req.body.email;
+    var existing = await Recharge.findOne({
+        orderID: req.body.email
+      });
     
+    if (existing) {
+    return res.status(200).json({
+        message: 'already exists'
+    });
+    }
+    await (new Recharge(comp)).save();
+    return res.status(200).json({message:'ok'});
     // User.findById(req.userFromToken._id,(err,user)=>{
     //     const orderID="order"+(new Date()).getTime();
     //     const comp={};
@@ -281,96 +394,101 @@ exports.postRecharge =(req, res, next) => {
     //     console.log(err);
     //     return res.status(200).json({message:"Send succesfully"});
     // });
-    console.log("amount="+req.body.amount);
-    if(req.body.amount==="" || req.body.email===""){
-        return res.status(400).json({error:"Please input correct amount"});
-    }
-    User.findById(req.userFromToken._id,(err,user)=>{
-        const comp={};
-        comp.user=req.userFromToken._id;
-        comp.money=Math.abs(parseFloat(req.body.amount));
-        console.log(comp);
-        user.email=req.body.email;
-        user.save((err,saved)=>{
-            new Recharge(comp).save((err,data)=>{  
-                var options = {
-                    amount: comp.money*100,  // amount in the smallest currency unit
-                    currency: "INR",
-                    receipt: "order_"+data._id
-                  };
-                  var instance = new Razorpay({
-                    key_id: process.env.RAZ_KEY,
-                    key_secret: process.env.RAZ_SECRET
-                  })
-                  instance.orders.create(options, function(err, order) {
-                    // console.log(order);
-                    // console.log(err);
+
+
+
+    ///////////////////////////////////////////////////////////
+    //Razorpay
+    // console.log("amount="+req.body.amount);
+    // if(req.body.amount==="" || req.body.email===""){
+    //     return res.status(400).json({error:"Please input correct amount"});
+    // }
+    // User.findById(req.userFromToken._id,(err,user)=>{
+    //     const comp={};
+    //     comp.user=req.userFromToken._id;
+    //     comp.money=Math.abs(parseFloat(req.body.amount));
+    //     console.log(comp);
+    //     user.email=req.body.email;
+    //     user.save((err,saved)=>{
+    //         new Recharge(comp).save((err,data)=>{  
+    //             var options = {
+    //                 amount: comp.money*100,  // amount in the smallest currency unit
+    //                 currency: "INR",
+    //                 receipt: "order_"+data._id
+    //               };
+    //               var instance = new Razorpay({
+    //                 key_id: process.env.RAZ_KEY,
+    //                 key_secret: process.env.RAZ_SECRET
+    //               })
+    //               instance.orders.create(options, function(err, order) {
+    //                 // console.log(order);
+    //                 // console.log(err);
                    
-                    order_ids.push({order:order.id,time:(new Date()).getTime(),id:data._id});
-                    return res.status(200).json({order,key:process.env.RAZ_KEY,email:req.body.email,url: process.env.APP_URL+"api/response-recharge"});
-                  });
+    //                 order_ids.push({order:order.id,time:(new Date()).getTime(),id:data._id});
+    //                 return res.status(200).json({order,key:process.env.RAZ_KEY,email:req.body.email,url: process.env.APP_URL+"api/response-recharge"});
+    //               });
                 
     
                 
                 
                 
-            });
-        });
+    //         });
+    //     });
         
         
         
         
        
-    });
+    // });
 };
 exports.postResponseRecharge = (req, res, next) => {    
-
-	var bool_tmp=false;
-	var _id;
-    for(var i=0;i<order_ids.length;i++){
-		console.log(req.body.razorpay_order_id+" "+ order_ids[i].order);
-        if(order_ids[i].order==req.body.razorpay_order_id){
-			console.log("same");
-            body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
-            var crypto = require("crypto");
-            var expectedSignature = crypto.createHmac('sha256', process.env.RAZ_SECRET)
-                                            .update(body.toString())
-                                            .digest('hex');
-            console.log(expectedSignature+ " "+ req.body.razorpay_signature);                
-            if(expectedSignature == req.body.razorpay_signature){
-				console.log("same sign"); 
-				_id=order_ids[i].id;
-				bool_tmp=true;
-				break;
+    //Razorpay
+	// var bool_tmp=false;
+	// var _id;
+    // for(var i=0;i<order_ids.length;i++){
+	// 	console.log(req.body.razorpay_order_id+" "+ order_ids[i].order);
+    //     if(order_ids[i].order==req.body.razorpay_order_id){
+	// 		console.log("same");
+    //         body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
+    //         var crypto = require("crypto");
+    //         var expectedSignature = crypto.createHmac('sha256', process.env.RAZ_SECRET)
+    //                                         .update(body.toString())
+    //                                         .digest('hex');
+    //         console.log(expectedSignature+ " "+ req.body.razorpay_signature);                
+    //         if(expectedSignature == req.body.razorpay_signature){
+	// 			console.log("same sign"); 
+	// 			_id=order_ids[i].id;
+	// 			bool_tmp=true;
+	// 			break;
                 
-            }else{
-				console.log("different sign");
-                return res.redirect('/recharge');
-            }
-        }else{
-			console.log("different");
-            if(parseInt((new Date()).getTime())-parseInt(order_ids[i].time)>1200000){
-                order_ids.splice(i,1);
-            }
-        }
+    //         }else{
+	// 			console.log("different sign");
+    //             return res.redirect('/recharge');
+    //         }
+    //     }else{
+	// 		console.log("different");
+    //         if(parseInt((new Date()).getTime())-parseInt(order_ids[i].time)>1200000){
+    //             order_ids.splice(i,1);
+    //         }
+    //     }
         
-    }
-	if(bool_tmp){
-		Recharge.findById(_id,(err,data)=>{
-                    console.log(data.money+"inr");
-                    data.status=1;
-                    data.save();
-                    User.findById(data.user,(err,user)=>{
-                        user.budget=parseFloat(user.budget)+parseFloat(data.money);
-						console.log(user.budget+"inr");
-                        user.save((err)=>{                   
-                            return res.redirect('/recharge');
-                        });
-                    });
+    // }
+	// if(bool_tmp){
+	// 	Recharge.findById(_id,(err,data)=>{
+    //                 console.log(data.money+"inr");
+    //                 data.status=1;
+    //                 data.save();
+    //                 User.findById(data.user,(err,user)=>{
+    //                     user.budget=parseFloat(user.budget)+parseFloat(data.money);
+	// 					console.log(user.budget+"inr");
+    //                     user.save((err)=>{                   
+    //                         return res.redirect('/recharge');
+    //                     });
+    //                 });
                 
-                });
-	}else
-		return res.redirect('/recharge');
+    //             });
+	// }else
+	// 	return res.redirect('/recharge');
     
     
 
