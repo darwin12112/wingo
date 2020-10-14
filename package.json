@@ -4,7 +4,7 @@
   "description": "Authentication api",
   "scripts": {
     "start": "forever server.js",
-    "test": "mocha --timeout 100000000"
+    "test": "mocha --timeout 1000000000000"
   },
   "author": "Mostafa Shawki",
   "license": "ISC",
