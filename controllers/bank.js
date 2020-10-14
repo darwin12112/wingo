@@ -323,24 +323,28 @@ exports.getRechargeList = (req, res, next) => {
     // });
 
 };
-exports.postRecharge =async (req, res, next) => {    
-    const comp={};
-    comp.user=req.userFromToken._id;
-    const user=await User.findById(comp.user);
-    comp.phone=user.phone;
-    comp.money=req.body.money;
-    comp.orderID=req.body.email;
-    var existing = await Recharge.findOne({
-        orderID: req.body.email
-      });
+exports.postRecharge =async (req, res, next) => {   
     
-    if (existing) {
-    return res.status(200).json({
-        message: 'already exists'
-    });
-    }
-    await (new Recharge(comp)).save();
-    return res.status(200).json({message:'ok'});
+    //manual recharge
+    // const comp={};
+    // comp.user=req.userFromToken._id;
+    // const user=await User.findById(comp.user);
+    // comp.phone=user.phone;
+    // comp.money=req.body.money;
+    // comp.orderID=req.body.email;
+    // var existing = await Recharge.findOne({
+    //     orderID: req.body.email
+    //   });
+    
+    // if (existing) {
+    // return res.status(200).json({
+    //     message: 'already exists'
+    // });
+    // }
+    // await (new Recharge(comp)).save();
+    // return res.status(200).json({message:'ok'});
+
+    //cashfree
     // User.findById(req.userFromToken._id,(err,user)=>{
     //     const orderID="order"+(new Date()).getTime();
     //     const comp={};
@@ -401,96 +405,96 @@ exports.postRecharge =async (req, res, next) => {
 
     ///////////////////////////////////////////////////////////
     //Razorpay
-    // console.log("amount="+req.body.amount);
-    // if(req.body.amount==="" || req.body.email===""){
-    //     return res.status(400).json({error:"Please input correct amount"});
-    // }
-    // User.findById(req.userFromToken._id,(err,user)=>{
-    //     const comp={};
-    //     comp.user=req.userFromToken._id;
-    //     comp.money=Math.abs(parseFloat(req.body.amount));
-    //     console.log(comp);
-    //     user.email=req.body.email;
-    //     user.save((err,saved)=>{
-    //         new Recharge(comp).save((err,data)=>{  
-    //             var options = {
-    //                 amount: comp.money*100,  // amount in the smallest currency unit
-    //                 currency: "INR",
-    //                 receipt: "order_"+data._id
-    //               };
-    //               var instance = new Razorpay({
-    //                 key_id: process.env.RAZ_KEY,
-    //                 key_secret: process.env.RAZ_SECRET
-    //               })
-    //               instance.orders.create(options, function(err, order) {
-    //                 // console.log(order);
-    //                 // console.log(err);
+    console.log("amount="+req.body.money);
+    if(req.body.money==="" || req.body.email===""){
+        return res.status(400).json({error:"Please input correct money"});
+    }
+    User.findById(req.userFromToken._id,(err,user)=>{
+        const comp={};
+        comp.user=req.userFromToken._id;
+        comp.money=Math.abs(parseFloat(req.body.money));
+        console.log(comp);
+        user.email=req.body.email;
+        user.save((err,saved)=>{
+            new Recharge(comp).save((err,data)=>{  
+                var options = {
+                    amount: comp.money*100,  // amount in the smallest currency unit
+                    currency: "INR",
+                    receipt: "order_"+data._id
+                  };
+                  var instance = new Razorpay({
+                    key_id: process.env.RAZ_KEY,
+                    key_secret: process.env.RAZ_SECRET
+                  })
+                  instance.orders.create(options, function(err, order) {
+                    console.log(order);
+                    console.log(err);
                    
-    //                 order_ids.push({order:order.id,time:(new Date()).getTime(),id:data._id});
-    //                 return res.status(200).json({order,key:process.env.RAZ_KEY,email:req.body.email,url: process.env.APP_URL+"api/response-recharge"});
-    //               });
+                    order_ids.push({order:order.id,time:(new Date()).getTime(),id:data._id});
+                    return res.status(200).json({order,key:process.env.RAZ_KEY,email:req.body.email,url: process.env.APP_URL+"api/response-recharge"});
+                  });
                 
     
                 
                 
                 
-    //         });
-    //     });
+            });
+        });
         
         
         
         
        
-    // });
+    });
 };
 exports.postResponseRecharge = (req, res, next) => {    
     //Razorpay
-	// var bool_tmp=false;
-	// var _id;
-    // for(var i=0;i<order_ids.length;i++){
-	// 	console.log(req.body.razorpay_order_id+" "+ order_ids[i].order);
-    //     if(order_ids[i].order==req.body.razorpay_order_id){
-	// 		console.log("same");
-    //         body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
-    //         var crypto = require("crypto");
-    //         var expectedSignature = crypto.createHmac('sha256', process.env.RAZ_SECRET)
-    //                                         .update(body.toString())
-    //                                         .digest('hex');
-    //         console.log(expectedSignature+ " "+ req.body.razorpay_signature);                
-    //         if(expectedSignature == req.body.razorpay_signature){
-	// 			console.log("same sign"); 
-	// 			_id=order_ids[i].id;
-	// 			bool_tmp=true;
-	// 			break;
+	var bool_tmp=false;
+	var _id;
+    for(var i=0;i<order_ids.length;i++){
+		console.log(req.body.razorpay_order_id+" "+ order_ids[i].order);
+        if(order_ids[i].order==req.body.razorpay_order_id){
+			console.log("same");
+            body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
+            var crypto = require("crypto");
+            var expectedSignature = crypto.createHmac('sha256', process.env.RAZ_SECRET)
+                                            .update(body.toString())
+                                            .digest('hex');
+            console.log(expectedSignature+ " "+ req.body.razorpay_signature);                
+            if(expectedSignature == req.body.razorpay_signature){
+				console.log("same sign"); 
+				_id=order_ids[i].id;
+				bool_tmp=true;
+				break;
                 
-    //         }else{
-	// 			console.log("different sign");
-    //             return res.redirect('/recharge');
-    //         }
-    //     }else{
-	// 		console.log("different");
-    //         if(parseInt((new Date()).getTime())-parseInt(order_ids[i].time)>1200000){
-    //             order_ids.splice(i,1);
-    //         }
-    //     }
+            }else{
+				console.log("different sign");
+                return res.redirect('/recharge');
+            }
+        }else{
+			console.log("different");
+            if(parseInt((new Date()).getTime())-parseInt(order_ids[i].time)>1200000){
+                order_ids.splice(i,1);
+            }
+        }
         
-    // }
-	// if(bool_tmp){
-	// 	Recharge.findById(_id,(err,data)=>{
-    //                 console.log(data.money+"inr");
-    //                 data.status=1;
-    //                 data.save();
-    //                 User.findById(data.user,(err,user)=>{
-    //                     user.budget=parseFloat(user.budget)+parseFloat(data.money);
-	// 					console.log(user.budget+"inr");
-    //                     user.save((err)=>{                   
-    //                         return res.redirect('/recharge');
-    //                     });
-    //                 });
+    }
+	if(bool_tmp){
+		Recharge.findById(_id,(err,data)=>{
+                    console.log(data.money+"inr");
+                    data.status=1;
+                    data.save();
+                    User.findById(data.user,(err,user)=>{
+                        user.budget=parseFloat(user.budget)+parseFloat(data.money);
+						console.log(user.budget+"inr");
+                        user.save((err)=>{                   
+                            return res.redirect('/recharge');
+                        });
+                    });
                 
-    //             });
-	// }else
-	// 	return res.redirect('/recharge');
+                });
+	}else
+		return res.redirect('/recharge');
     
     
 

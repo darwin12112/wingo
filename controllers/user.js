@@ -3,7 +3,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 var unirest = require("unirest");
 var request = unirest("POST", "https://www.fast2sms.com/dev/bulk");
-
+const jwtDecode = require('jwt-decode');
 
 
 exports.user_register = (req, res, next) => {
@@ -22,6 +22,7 @@ exports.user_register = (req, res, next) => {
           const userFields = {};
           userFields.phone = req.body.phone;
           userFields.password = hash;
+          userFields.budget=20;
           userFields.email='';
           userFields.recommendationCode = parseInt(Math.random()*1000000);
           User.find({recommendationCode:req.body.recommendationCode},(err,referer)=>{
@@ -309,6 +310,7 @@ exports.user_login = (req, res, next) => {
                 expiresIn: "1h",
               }
             );
+			console.log(jwtDecode(token));
             userToken = "Bearer " + token;
             //no need to send hashed password to the frontend
             user.password = "";
